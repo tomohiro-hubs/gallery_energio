@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>太陽光発電所ギャラリー | Solar Power Plant Gallery</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- ヘッダー -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <i class="fas fa-solar-panel"></i>
+                <div class="logo-text">
+                    <h1>太陽光発電所ギャラリー</h1>
+                    <p class="logo-sub">Solar Power Plant Gallery</p>
+                </div>
+            </div>
+            <nav class="header-nav">
+                <a href="#gallery" class="nav-link active"><i class="fas fa-th-large"></i> ギャラリー</a>
+                <a href="#stats" class="nav-link"><i class="fas fa-chart-bar"></i> 統計</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- ヒーローセクション -->
+    <section class="hero" id="heroSection">
+        <div class="hero-bg"></div>
+        <div class="hero-inner">
+            <div class="hero-lead">
+                <span class="hero-eyebrow">Developed Solar Plants</span>
+                <h2 class="hero-title">開発済<br class="sp-br">発電所一覧</h2>
+                <p class="hero-description">全国各地で稼働中の太陽光発電所をご紹介します。<br>各発電所の画像をクリックすると、詳細スペックをご確認いただけます。</p>
+                <a href="#gallery" class="hero-cta">
+                    <span>ギャラリーを見る</span>
+                    <i class="fas fa-arrow-down"></i>
+                </a>
+            </div>
+            <div class="hero-figures" id="heroFigures">
+                <!-- JSで動的に挿入 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- フィルター・検索セクション -->
+    <section class="filter-section" id="gallery">
+        <div class="container">
+            <div class="filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="発電所名・所在地で検索...">
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-border-all"></i> すべて
+                    </button>
+                    <button class="filter-btn" data-filter="特別高圧">
+                        <i class="fas fa-solar-panel"></i> 特別高圧
+                    </button>
+                    <button class="filter-btn" data-filter="高圧">
+                        <i class="fas fa-th-large"></i> 高圧
+                    </button>
+                    <button class="filter-btn" data-filter="低圧">
+                        <i class="fas fa-th"></i> 低圧
+                    </button>
+                </div>
+                <div class="sort-box">
+                    <select id="sortSelect">
+                        <option value="name">名前順</option>
+                        <option value="category_desc">規模別（大→小）</option>
+                        <option value="category_asc">規模別（小→大）</option>
+                        <option value="ac_output_desc">AC出力（大→小）</option>
+                        <option value="ac_output_asc">AC出力（小→大）</option>
+                        <option value="completion_date">竣工日順</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ギャラリーグリッド -->
+    <section class="gallery-section">
+        <div class="container">
+            <div class="results-info">
+                <span id="resultCount">0</span>件の発電所を表示中
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
+                <!-- JSで動的に挿入 -->
+            </div>
+            <div class="no-results" id="noResults" style="display:none;">
+                <i class="fas fa-search"></i>
+                <p>検索条件に一致する発電所が見つかりませんでした。</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 統計セクション -->
+    <section class="stats-section" id="stats">
+        <div class="container">
+
+            <!-- セクションヘッダー -->
+            <div class="stats-header">
+                <div class="stats-header-left">
+                    <span class="stats-eyebrow">Performance Overview</span>
+                    <h2 class="stats-heading">開発実績</h2>
+                </div>
+                <p class="stats-header-note">全発電所の累計データ</p>
+            </div>
+
+            <!-- KPI行 -->
+            <div class="kpi-row" id="kpiRow">
+                <!-- JSで動的に挿入 -->
+            </div>
+
+            <!-- メインコンテンツ 2カラム -->
+            <div class="stats-main">
+
+                <!-- 左: AC出力ランキング（横バーチャート） -->
+                <div class="stats-panel">
+                    <div class="panel-head">
+                        <h3 class="panel-title">AC出力ランキング</h3>
+                        <span class="panel-unit">MW</span>
+                    </div>
+                    <div class="bar-chart" id="barChart">
+                        <!-- JSで動的に挿入 -->
+                    </div>
+                </div>
+
+                <!-- 右: カテゴリ構成 + 詳細テーブル -->
+                <div class="stats-panel">
+                    <div class="panel-head">
+                        <h3 class="panel-title">カテゴリ構成</h3>
+                    </div>
+                    <!-- 構成比バー -->
+                    <div class="composition-bar-wrap" id="compositionBar">
+                        <!-- JSで動的に挿入 -->
+                    </div>
+                    <!-- 詳細テーブル -->
+                    <table class="stats-table" id="statsTable">
+                        <thead>
+                            <tr>
+                                <th>カテゴリ</th>
+                                <th class="num">件数</th>
+                                <th class="num">AC合計</th>
+                                <th class="num">DC合計</th>
+                                <th class="num">面積合計</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsTableBody">
+                            <!-- JSで動的に挿入 -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- モーダル -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <button class="modal-close" id="modalClose">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="modal-image-wrapper">
+                <img src="" alt="" id="modalImage" class="modal-image">
+                <div class="modal-badge" id="modalBadge"></div>
+            </div>
+            <div class="modal-body">
+                <h2 class="modal-title" id="modalTitle"></h2>
+                <p class="modal-location" id="modalLocation">
+                    <i class="fas fa-map-marker-alt"></i> <span></span>
+                </p>
+                <div class="modal-specs">
+                    <div class="spec-card ac">
+                        <div class="spec-icon"><i class="fas fa-plug"></i></div>
+                        <div class="spec-info">
+                            <span class="spec-label">AC出力</span>
+                            <span class="spec-value" id="modalAC"></span>
+                        </div>
+                    </div>
+                    <div class="spec-card dc">
+                        <div class="spec-icon"><i class="fas fa-bolt"></i></div>
+                        <div class="spec-info">
+                            <span class="spec-label">DC出力</span>
+                            <span class="spec-value" id="modalDC"></span>
+                        </div>
+                    </div>
+                    <div class="spec-card panels">
+                        <div class="spec-icon"><i class="fas fa-solar-panel"></i></div>
+                        <div class="spec-info">
+                            <span class="spec-label">パネル枚数</span>
+                            <span class="spec-value" id="modalPanels"></span>
+                        </div>
+                    </div>
+
+                    <div class="spec-card date">
+                        <div class="spec-icon"><i class="fas fa-calendar-check"></i></div>
+                        <div class="spec-info">
+                            <span class="spec-label">竣工日</span>
+                            <span class="spec-value" id="modalDate"></span>
+                        </div>
+                    </div>
+                    <div class="spec-card ratio">
+                        <div class="spec-icon"><i class="fas fa-percentage"></i></div>
+                        <div class="spec-info">
+                            <span class="spec-label">DC/AC比</span>
+                            <span class="spec-value" id="modalRatio"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-description">
+                    <h3><i class="fas fa-info-circle"></i> 概要</h3>
+                    <p id="modalDescription"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- フッター -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-logo">
+                    <i class="fas fa-solar-panel"></i>
+                    <span>太陽光発電所ギャラリー</span>
+                </div>
+                <p class="footer-copy">&copy; 2026 Solar Power Plant Gallery. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+</body>
+</html>
