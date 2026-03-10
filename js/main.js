@@ -10,6 +10,7 @@ let filteredPlants = [];
 let currentFilter = 'all';
 let currentSearch = '';
 let currentSort = 'ac_output_desc';
+let hasStatsAnimated = false;
 
 // ===========================
 // 初期化
@@ -107,6 +108,14 @@ function formatArea(sqm) {
     }
     return sqm.toLocaleString('ja-JP') + ' ㎡';
 }
+function calculateTotals(plants) {
+    return plants.reduce((totals, plant) => {
+        totals.totalAC += Number(plant.ac_output) || 0;
+        totals.totalDC += Number(plant.dc_output) || 0;
+        totals.totalPanels += Number(plant.panel_count) || 0;
+        return totals;
+    }, { totalAC: 0, totalDC: 0, totalPanels: 0 });
+}
 
 /**
  * カウントアップアニメーション
@@ -151,9 +160,7 @@ function getCategoryBadgeClass(category) {
 // ===========================
 function renderHeroStats() {
     const totalPlants = allPlants.length;
-    const totalAC = allPlants.reduce((sum, p) => sum + (p.ac_output || 0), 0);
-    const totalDC = allPlants.reduce((sum, p) => sum + (p.dc_output || 0), 0);
-    const totalPanels = allPlants.reduce((sum, p) => sum + (p.panel_count || 0), 0);
+    const { totalAC, totalDC, totalPanels } = calculateTotals(allPlants);
 
     const heroFigures = document.getElementById('heroFigures');
 
@@ -198,9 +205,7 @@ function setHeroBg() {
 // 統計セクション
 // ===========================
 function renderStats() {
-    const totalAC = allPlants.reduce((s, p) => s + (p.ac_output || 0), 0);
-    const totalDC = allPlants.reduce((s, p) => s + (p.dc_output || 0), 0);
-    const totalPanels = allPlants.reduce((s, p) => s + (p.panel_count || 0), 0);
+    const { totalAC, totalDC, totalPanels } = calculateTotals(allPlants);
 
     const cats = [
         { key: '特別高圧', cls: 'extra-high' },
@@ -287,13 +292,13 @@ function renderStats() {
         `;
 
     // アニメーション実行用の関数として独立
-    window.statsAnimated = false; // 二重実行防止
+    hasStatsAnimated = false; // 二重実行防止
     const statsTarget = document.getElementById('stats');
     if (statsTarget) {
         const statsObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting && !window.statsAnimated) {
-                    window.statsAnimated = true;
+                if (entry.isIntersecting && !hasStatsAnimated) {
+                    hasStatsAnimated = true;
                     startStatsAnimation(totalAC, totalDC, totalPanels, top5, cats);
                     statsObserver.unobserve(entry.target);
                 }
@@ -334,8 +339,8 @@ function startStatsAnimation(totalAC, totalDC, totalPanels, top5, cats) {
 
         if (countEl) animateCount(countEl, c.count, 1500, 0);
         if (tabCountEl) animateCount(tabCountEl, c.count, 1500, 0);
-        if (tabAcEl) animateCount(tabAcEl, (c.ac.ac_output || c.ac) / 1000, 1800, 2);
-        if (tabDcEl) animateCount(tabDcEl, (c.dc.dc_output || c.dc) / 1000, 2000, 2);
+        if (tabAcEl) animateCount(tabAcEl, c.ac / 1000, 1800, 2);
+        if (tabDcEl) animateCount(tabDcEl, c.dc / 1000, 2000, 2);
     });
 
     // テーブル合計
