@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <title>太陽光発電所ギャラリー | Solar Power Plant Gallery</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css"
+        crossorigin="anonymous">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <!-- ヘッダー -->
     <header class="header">
@@ -71,10 +75,10 @@
                 </div>
                 <div class="sort-box">
                     <select id="sortSelect">
+                        <option value="ac_output_desc" selected>AC出力（大→小）</option>
                         <option value="name">名前順</option>
                         <option value="category_desc">規模別（大→小）</option>
                         <option value="category_asc">規模別（小→大）</option>
-                        <option value="ac_output_desc">AC出力（大→小）</option>
                         <option value="ac_output_asc">AC出力（小→大）</option>
                         <option value="completion_date">竣工日順</option>
                     </select>
@@ -148,7 +152,6 @@
                                 <th class="num">件数</th>
                                 <th class="num">AC合計</th>
                                 <th class="num">DC合計</th>
-                                <th class="num">面積合計</th>
                             </tr>
                         </thead>
                         <tbody id="statsTableBody">
@@ -237,4 +240,5 @@
 
     <script src="js/main.js"></script>
 </body>
+
 </html>

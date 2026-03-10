@@ -9,7 +9,7 @@ let allPlants = [];
 let filteredPlants = [];
 let currentFilter = 'all';
 let currentSearch = '';
-let currentSort = 'name';
+let currentSort = 'ac_output_desc';
 
 // ===========================
 // 初期化
@@ -28,9 +28,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 // ===========================
 async function loadPlants() {
     try {
-        const response = await fetch('tables/power_plants?limit=100');
+        const response = await fetch('data.json');
         const result = await response.json();
-        allPlants = result.data || [];
+        const rawPlants = result.data || [];
+
+        // AC出力に基づくカテゴリの自動判定
+        allPlants = rawPlants.map(plant => {
+            const ac = plant.ac_output || 0;
+            let category = '低圧';
+            if (ac >= 2000) {
+                category = '特別高圧';
+            } else if (ac >= 50) {
+                category = '高圧';
+            }
+            return { ...plant, category };
+        });
+
         filteredPlants = [...allPlants];
     } catch (error) {
         console.error('データの取得に失敗しました:', error);
@@ -74,28 +87,28 @@ function sanitizeURL(url) {
 
 function formatNumber(num) {
     if (num >= 10000) {
-        return (num / 10000).toFixed(1).replace(/\.0$/, '') + '万';
+        return (num / 10000).toFixed(3) + '万';
     }
     return num.toLocaleString('ja-JP');
 }
 
 function formatPower(kw) {
     if (kw >= 1000) {
-        return (kw / 1000).toFixed(1).replace(/\.0$/, '') + ' MW';
+        return (kw / 1000).toFixed(3) + ' MW';
     }
     return kw.toLocaleString('ja-JP') + ' kW';
 }
 
 function formatArea(sqm) {
     if (sqm >= 10000) {
-        return (sqm / 10000).toFixed(1).replace(/\.0$/, '') + ' ha';
+        return (sqm / 10000).toFixed(3) + ' ha';
     }
     return sqm.toLocaleString('ja-JP') + ' ㎡';
 }
 
 function getCategoryBadgeClass(category) {
     switch (category) {
-                case '特別高圧': return 'extra-high';
+        case '特別高圧': return 'extra-high';
         case '高圧': return 'high';
         case '低圧': return 'low';
         default: return 'extra-high';
@@ -110,7 +123,7 @@ function renderHeroStats() {
     const totalAC = allPlants.reduce((sum, p) => sum + (p.ac_output || 0), 0);
     const totalDC = allPlants.reduce((sum, p) => sum + (p.dc_output || 0), 0);
     const totalPanels = allPlants.reduce((sum, p) => sum + (p.panel_count || 0), 0);
-    const prefectures = new Set(allPlants.map(p => (p.location || '').replace(/[市町村区郡].*/,'')));
+    const prefectures = new Set(allPlants.map(p => (p.location || '').replace(/[市町村区郡].*/, '')));
 
     const heroFigures = document.getElementById('heroFigures');
     heroFigures.innerHTML = `
@@ -120,11 +133,11 @@ function renderHeroStats() {
         </div>
         <div class="hero-fig">
             <span class="hero-fig-label">Total AC</span>
-            <span class="hero-fig-value">${(totalAC/1000).toFixed(1)}<span class="hero-fig-unit">MW</span></span>
+            <span class="hero-fig-value">${(totalAC / 1000).toFixed(3)}<span class="hero-fig-unit">MW</span></span>
         </div>
         <div class="hero-fig">
             <span class="hero-fig-label">Total DC</span>
-            <span class="hero-fig-value">${(totalDC/1000).toFixed(1)}<span class="hero-fig-unit">MW</span></span>
+            <span class="hero-fig-value">${(totalDC / 1000).toFixed(3)}<span class="hero-fig-unit">MW</span></span>
         </div>
         <div class="hero-fig">
             <span class="hero-fig-label">Panels</span>
@@ -138,7 +151,7 @@ function renderHeroStats() {
 // ===========================
 function setHeroBg() {
     if (allPlants.length === 0) return;
-    const top = [...allPlants].sort((a,b) => (b.ac_output||0) - (a.ac_output||0))[0];
+    const top = [...allPlants].sort((a, b) => (b.ac_output || 0) - (a.ac_output || 0))[0];
     const safeUrl = sanitizeURL(top?.image_url);
     if (safeUrl) {
         document.querySelector('.hero-bg').style.setProperty('--hero-bg-url', `url(${CSS.escape ? safeUrl : safeUrl})`);
@@ -149,23 +162,22 @@ function setHeroBg() {
 // 統計セクション
 // ===========================
 function renderStats() {
-    const totalAC  = allPlants.reduce((s, p) => s + (p.ac_output  || 0), 0);
-    const totalDC  = allPlants.reduce((s, p) => s + (p.dc_output  || 0), 0);
+    const totalAC = allPlants.reduce((s, p) => s + (p.ac_output || 0), 0);
+    const totalDC = allPlants.reduce((s, p) => s + (p.dc_output || 0), 0);
     const totalArea = allPlants.reduce((s, p) => s + (p.area || 0), 0);
     const totalPanels = allPlants.reduce((s, p) => s + (p.panel_count || 0), 0);
 
     const cats = [
-                { key: '特別高圧', cls: 'extra-high' },
-        { key: '高圧',       cls: 'high'  },
-        { key: '低圧',       cls: 'low'}
+        { key: '特別高圧', cls: 'extra-high' },
+        { key: '高圧', cls: 'high' },
+        { key: '低圧', cls: 'low' }
     ].map(c => {
         const items = allPlants.filter(p => p.category === c.key);
         return {
             ...c,
             count: items.length,
-            ac: items.reduce((s,p) => s + (p.ac_output||0), 0),
-            dc: items.reduce((s,p) => s + (p.dc_output||0), 0),
-            area: items.reduce((s,p) => s + (p.area||0), 0),
+            ac: items.reduce((s, p) => s + (p.ac_output || 0), 0),
+            dc: items.reduce((s, p) => s + (p.dc_output || 0), 0),
         };
     });
 
@@ -173,16 +185,13 @@ function renderStats() {
     document.getElementById('kpiRow').innerHTML = `
         <div class="kpi-item">
             <span class="kpi-label">総AC出力</span>
-            <span class="kpi-value">${(totalAC/1000).toFixed(1)}<span class="kpi-sub">MW</span></span>
+            <span class="kpi-value">${(totalAC / 1000).toFixed(3)}<span class="kpi-sub">MW</span></span>
         </div>
         <div class="kpi-item">
             <span class="kpi-label">総DC出力</span>
-            <span class="kpi-value">${(totalDC/1000).toFixed(1)}<span class="kpi-sub">MW</span></span>
+            <span class="kpi-value">${(totalDC / 1000).toFixed(3)}<span class="kpi-sub">MW</span></span>
         </div>
-        <div class="kpi-item">
-            <span class="kpi-label">総敷地面積</span>
-            <span class="kpi-value">${(totalArea/10000).toFixed(1)}<span class="kpi-sub">ha</span></span>
-        </div>
+
         <div class="kpi-item">
             <span class="kpi-label">総パネル枚数</span>
             <span class="kpi-value">${formatNumber(totalPanels)}<span class="kpi-sub">枚</span></span>
@@ -190,17 +199,17 @@ function renderStats() {
     `;
 
     // --- 横バーチャート（AC出力上位5） ---
-    const top5 = [...allPlants].sort((a,b) => (b.ac_output||0) - (a.ac_output||0)).slice(0, 5);
+    const top5 = [...allPlants].sort((a, b) => (b.ac_output || 0) - (a.ac_output || 0)).slice(0, 5);
     const maxAC = top5.length ? top5[0].ac_output : 1;
 
     document.getElementById('barChart').innerHTML = top5.map((p, i) => {
-        const mw = (p.ac_output / 1000).toFixed(1);
+        const mw = (p.ac_output / 1000).toFixed(3);
         const pct = Math.round((p.ac_output / maxAC) * 100);
         const safeName = escapeHTML(p.name);
         return `
             <div class="bar-row">
                 <div class="bar-label-line">
-                    <span class="bar-rank">${i+1}</span>
+                    <span class="bar-rank">${i + 1}</span>
                     <span class="bar-name" title="${safeName}">${safeName}</span>
                     <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
                 </div>
@@ -213,9 +222,9 @@ function renderStats() {
     document.getElementById('compositionBar').innerHTML = `
         <div class="composition-bar">
             ${cats.map(c => {
-                const pct = ((c.count / total) * 100).toFixed(1);
-                return `<div class="comp-seg ${c.cls}" style="width:${pct}%">${pct > 12 ? pct+'%' : ''}</div>`;
-            }).join('')}
+        const pct = ((c.count / total) * 100).toFixed(3);
+        return `<div class="comp-seg ${c.cls}" style="width:${pct}%">${pct > 12 ? pct + '%' : ''}</div>`;
+    }).join('')}
         </div>
         <div class="comp-legend">
             ${cats.map(c => `
@@ -227,8 +236,7 @@ function renderStats() {
     `;
 
     // --- テーブル ---
-    const fmtMW  = v => (v/1000).toFixed(1) + ' MW';
-    const fmtHa  = v => (v/10000).toFixed(1) + ' ha';
+    const fmtMW = v => (v / 1000).toFixed(3) + ' MW';
 
     document.getElementById('statsTableBody').innerHTML =
         cats.map(c => `
@@ -237,7 +245,6 @@ function renderStats() {
                 <td class="num">${c.count}</td>
                 <td class="num">${fmtMW(c.ac)}</td>
                 <td class="num">${fmtMW(c.dc)}</td>
-                <td class="num">${fmtHa(c.area)}</td>
             </tr>
         `).join('') + `
             <tr>
@@ -245,7 +252,6 @@ function renderStats() {
                 <td class="num">${allPlants.length}</td>
                 <td class="num">${fmtMW(totalAC)}</td>
                 <td class="num">${fmtMW(totalDC)}</td>
-                <td class="num">${fmtHa(totalArea)}</td>
             </tr>
         `;
 }
@@ -255,7 +261,7 @@ function renderStats() {
 // ===========================
 function renderGallery() {
     applyFilters();
-    
+
     const grid = document.getElementById('galleryGrid');
     const noResults = document.getElementById('noResults');
     const resultCount = document.getElementById('resultCount');
@@ -280,31 +286,31 @@ function renderGallery() {
         <div class="plant-card" data-plant-id="${safeId}" style="animation-delay: ${index * 0.05}s">
             <div class="card-image-wrapper">
                 <img src="${safeImage}" alt="${safeName}" class="card-image" loading="lazy">
-                <div class="card-overlay"></div>
-                <span class="card-badge ${getCategoryBadgeClass(plant.category)}">${safeCategory}</span>
-                <div class="card-click-hint">
-                    <i class="fas fa-expand"></i>
-                </div>
-                <div class="card-info-overlay">
-                    <h3 class="card-name">${safeName}</h3>
-                    <p class="card-location">
-                        <i class="fas fa-map-marker-alt"></i> ${safeLocation}
-                    </p>
-                    <div class="card-specs">
-                        <div class="card-spec">
-                            <span class="card-spec-label">AC出力</span>
-                            <span class="card-spec-value">${escapeHTML(formatPower(plant.ac_output))}</span>
-                        </div>
-                        <div class="card-spec">
-                            <span class="card-spec-label">DC出力</span>
-                            <span class="card-spec-value">${escapeHTML(formatPower(plant.dc_output))}</span>
-                        </div>
-                        <div class="card-spec">
-                            <span class="card-spec-label">パネル</span>
-                            <span class="card-spec-value">${escapeHTML(formatNumber(plant.panel_count))}枚</span>
+                    <div class="card-overlay"></div>
+                    <span class="card-badge ${getCategoryBadgeClass(plant.category)}">${safeCategory}</span>
+                    <div class="card-click-hint">
+                        <i class="fas fa-expand"></i>
+                    </div>
+                    <div class="card-info-overlay">
+                        <h3 class="card-name">${safeName}</h3>
+                        <p class="card-location">
+                            <i class="fas fa-map-marker-alt"></i> ${safeLocation}
+                        </p>
+                        <div class="card-specs">
+                            <div class="card-spec">
+                                <span class="card-spec-label">AC出力</span>
+                                <span class="card-spec-value">${escapeHTML(formatPower(plant.ac_output))}</span>
+                            </div>
+                            <div class="card-spec">
+                                <span class="card-spec-label">DC出力</span>
+                                <span class="card-spec-value">${escapeHTML(formatPower(plant.dc_output))}</span>
+                            </div>
+                            <div class="card-spec">
+                                <span class="card-spec-label">パネル</span>
+                                <span class="card-spec-value">${escapeHTML(formatNumber(plant.panel_count))}枚</span>
+                            </div>
                         </div>
                     </div>
-                </div>
             </div>
         </div>`;
     }).join('');
@@ -364,8 +370,8 @@ function openModal(plantId) {
     const plant = allPlants.find(p => p.id === plantId);
     if (!plant) return;
 
-    const ratio = plant.ac_output > 0 
-        ? (plant.dc_output / plant.ac_output).toFixed(2)
+    const ratio = plant.ac_output > 0
+        ? (plant.dc_output / plant.ac_output).toFixed(3)
         : '-';
 
     const safeImage = sanitizeURL(plant.image_url);
@@ -451,7 +457,7 @@ function setupEventListeners() {
 
     // スムーズスクロール
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function(e) {
+        anchor.addEventListener('click', function (e) {
             e.preventDefault();
             const target = document.querySelector(this.getAttribute('href'));
             if (target) {
