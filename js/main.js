@@ -76,9 +76,13 @@ function escapeHTML(str) {
  */
 function sanitizeURL(url) {
     if (!url) return '';
+    // 相対パス（images/...など）はそのまま返す
+    if (!url.includes('://') && !url.startsWith('//')) {
+        return url;
+    }
     try {
         const parsed = new URL(url, location.origin);
-        if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+        if (parsed.protocol === 'https:' || parsed.protocol === 'http:' || parsed.protocol === 'file:') {
             return parsed.href;
         }
     } catch (e) { /* 無効なURL */ }
