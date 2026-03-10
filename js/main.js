@@ -110,6 +110,35 @@ function formatArea(sqm) {
     return sqm.toLocaleString('ja-JP') + ' ㎡';
 }
 
+/**
+ * カウントアップアニメーション
+ * @param {HTMLElement} el - 対象のエレメント
+ * @param {number} target - 目標数値
+ * @param {number} duration - アニメーション時間(ms)
+ * @param {number} decimals - 小数点以下の桁数
+ */
+function animateCount(el, target, duration = 1500, decimals = 0) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        // イージング関数 (Cubic Out)
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        const current = easeProgress * target;
+
+        if (decimals > 0) {
+            el.innerHTML = current.toFixed(decimals);
+        } else {
+            el.innerHTML = Math.floor(current).toLocaleString('ja-JP');
+        }
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        }
+    };
+    window.requestAnimationFrame(step);
+}
+
 function getCategoryBadgeClass(category) {
     switch (category) {
         case '特別高圧': return 'extra-high';
@@ -127,27 +156,36 @@ function renderHeroStats() {
     const totalAC = allPlants.reduce((sum, p) => sum + (p.ac_output || 0), 0);
     const totalDC = allPlants.reduce((sum, p) => sum + (p.dc_output || 0), 0);
     const totalPanels = allPlants.reduce((sum, p) => sum + (p.panel_count || 0), 0);
-    const prefectures = new Set(allPlants.map(p => (p.location || '').replace(/[市町村区郡].*/, '')));
 
     const heroFigures = document.getElementById('heroFigures');
+
+    // まず枠組みだけを描画
     heroFigures.innerHTML = `
         <div class="hero-fig">
             <span class="hero-fig-label">Sites</span>
-            <span class="hero-fig-value">${totalPlants}<span class="hero-fig-unit">カ所</span></span>
+            <span class="hero-fig-value"><span id="count-sites">0</span><span class="hero-fig-unit">カ所</span></span>
         </div>
         <div class="hero-fig">
             <span class="hero-fig-label">Total AC</span>
-            <span class="hero-fig-value">${(totalAC / 1000).toFixed(3)}<span class="hero-fig-unit">MW</span></span>
+            <span class="hero-fig-value"><span id="count-ac">0</span><span class="hero-fig-unit">MW</span></span>
         </div>
         <div class="hero-fig">
             <span class="hero-fig-label">Total DC</span>
-            <span class="hero-fig-value">${(totalDC / 1000).toFixed(3)}<span class="hero-fig-unit">MW</span></span>
+            <span class="hero-fig-value"><span id="count-dc">0</span><span class="hero-fig-unit">MW</span></span>
         </div>
         <div class="hero-fig">
             <span class="hero-fig-label">Panels</span>
-            <span class="hero-fig-value">${formatNumber(totalPanels)}<span class="hero-fig-unit">枚</span></span>
+            <span class="hero-fig-value"><span id="count-panels">0</span><span class="hero-fig-unit">枚</span></span>
         </div>
     `;
+
+    // アニメーションを開始 (0.1秒待ってから開始することで、より「動き出し」を感じやすくする)
+    setTimeout(() => {
+        animateCount(document.getElementById('count-sites'), totalPlants, 1500, 0);
+        animateCount(document.getElementById('count-ac'), totalAC / 1000, 1800, 2);
+        animateCount(document.getElementById('count-dc'), totalDC / 1000, 2000, 2);
+        animateCount(document.getElementById('count-panels'), totalPanels, 2200, 0);
+    }, 100);
 }
 
 // ===========================
