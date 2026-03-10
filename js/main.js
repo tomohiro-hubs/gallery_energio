@@ -90,10 +90,8 @@ function sanitizeURL(url) {
 }
 
 function formatNumber(num) {
-    if (num >= 10000) {
-        return (num / 10000).toFixed(3) + '万';
-    }
-    return num.toLocaleString('ja-JP');
+    if (num == null) return '0';
+    return Math.floor(num).toLocaleString('ja-JP');
 }
 
 function formatPower(kw) {

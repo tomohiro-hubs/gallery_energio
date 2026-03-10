@@ -480,10 +480,10 @@ body {
     inset: 0;
     background:
         linear-gradient(to top,
-            rgba(26, 10, 10, 0.92) 0%,
-            rgba(26, 10, 10, 0.55) 40%,
-            rgba(26, 10, 10, 0.18) 70%,
-            rgba(26, 10, 10, 0.06) 100%);
+            rgba(26, 10, 10, 0.55) 0%,
+            rgba(26, 10, 10, 0.3) 40%,
+            rgba(26, 10, 10, 0.08) 70%,
+            rgba(26, 10, 10, 0.02) 100%);
     pointer-events: none;
     transition: var(--transition);
 }
@@ -491,10 +491,10 @@ body {
 .plant-card:hover .card-overlay {
     background:
         linear-gradient(to top,
-            rgba(26, 10, 10, 0.95) 0%,
-            rgba(26, 10, 10, 0.60) 45%,
-            rgba(26, 10, 10, 0.22) 75%,
-            rgba(26, 10, 10, 0.10) 100%);
+            rgba(26, 10, 10, 0.7) 0%,
+            rgba(26, 10, 10, 0.4) 45%,
+            rgba(26, 10, 10, 0.12) 75%,
+            rgba(26, 10, 10, 0.05) 100%);
 }
 
 .card-badge {
@@ -533,8 +533,8 @@ body {
     padding: 22px 22px 20px;
     z-index: 2;
     color: #fff;
-    /* ぼかしを削除し、テキストの可読性を高めるためにグラデーションをより濃く調整 */
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0, 0, 0, 0) 100%);
+    /* 読みやすさを保ちつつグラデーションをさらに薄く調整 */
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.45) 0%, rgba(0, 0, 0, 0) 100%);
 }
 
 .card-name {
