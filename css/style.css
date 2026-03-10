@@ -73,53 +73,20 @@ body {
     height: 70px;
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-}
-
-.logo i {
-    font-size: 28px;
-    color: var(--primary);
-}
-
-.logo h1 {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-}
-
-.logo-sub {
-    font-size: 11px;
-    color: var(--text-muted);
-    font-weight: 400;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-}
-
-.header-nav {
-    display: flex;
-    gap: 8px;
-}
-
-.nav-link {
+.back-link {
     text-decoration: none;
     color: var(--text-light);
     font-size: 14px;
-    font-weight: 500;
-    padding: 8px 18px;
-    border-radius: 8px;
-    transition: var(--transition);
+    font-weight: 600;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px;
+    transition: var(--transition);
 }
 
-.nav-link:hover,
-.nav-link.active {
-    background: var(--primary-light);
+.back-link:hover {
     color: var(--primary);
+    transform: translateX(-4px);
 }
 
 /* ===========================
@@ -134,13 +101,16 @@ body {
     background: #1a0a0a;
 }
 
-/* 背景写真レイヤー（直接写真を表示） */
+/* 背景写真レイヤー */
 .hero-bg {
     position: absolute;
     inset: 0;
-    background-image: var(--hero-bg-url, none);
+    background-image: url('../images/wake1.jpg');
+    /* 背景写真を固定 */
     background-size: cover;
-    background-position: center 40%;
+    background-position: center;
+    opacity: 0.5;
+    /* 写真を少し薄くする */
     z-index: 0;
 }
 
@@ -149,8 +119,8 @@ body {
     content: '';
     position: absolute;
     inset: 0;
-    background:
-        linear-gradient(135deg, rgba(26, 10, 10, 0.94) 0%, rgba(40, 12, 12, 0.88) 50%, rgba(50, 14, 14, 0.82) 100%);
+    /* 左側（文字側）を暗くして読みやすくする */
+    background: linear-gradient(to right, #1a0a0a 0%, rgba(26, 10, 10, 0.7) 40%, transparent 90%);
     z-index: 1;
 }
 

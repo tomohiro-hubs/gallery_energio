@@ -192,12 +192,8 @@ function renderHeroStats() {
 // ヒーロー背景画像
 // ===========================
 function setHeroBg() {
-    if (allPlants.length === 0) return;
-    const top = [...allPlants].sort((a, b) => (b.ac_output || 0) - (a.ac_output || 0))[0];
-    const safeUrl = sanitizeURL(top?.image_url);
-    if (safeUrl) {
-        document.querySelector('.hero-bg').style.setProperty('--hero-bg-url', `url(${CSS.escape ? safeUrl : safeUrl})`);
-    }
+    const safeUrl = 'images/wake1.jpg';
+    document.querySelector('.hero-bg').style.setProperty('--hero-bg-url', `url(${safeUrl})`);
 }
 
 // ===========================
@@ -206,7 +202,6 @@ function setHeroBg() {
 function renderStats() {
     const totalAC = allPlants.reduce((s, p) => s + (p.ac_output || 0), 0);
     const totalDC = allPlants.reduce((s, p) => s + (p.dc_output || 0), 0);
-    const totalArea = allPlants.reduce((s, p) => s + (p.area || 0), 0);
     const totalPanels = allPlants.reduce((s, p) => s + (p.panel_count || 0), 0);
 
     const cats = [
@@ -227,16 +222,15 @@ function renderStats() {
     document.getElementById('kpiRow').innerHTML = `
         <div class="kpi-item">
             <span class="kpi-label">総AC出力</span>
-            <span class="kpi-value">${(totalAC / 1000).toFixed(3)}<span class="kpi-sub">MW</span></span>
+            <span class="kpi-value"><span id="stat-kpi-ac">0</span><span class="kpi-sub">MW</span></span>
         </div>
         <div class="kpi-item">
             <span class="kpi-label">総DC出力</span>
-            <span class="kpi-value">${(totalDC / 1000).toFixed(3)}<span class="kpi-sub">MW</span></span>
+            <span class="kpi-value"><span id="stat-kpi-dc">0</span><span class="kpi-sub">MW</span></span>
         </div>
-
         <div class="kpi-item">
             <span class="kpi-label">総パネル枚数</span>
-            <span class="kpi-value">${formatNumber(totalPanels)}<span class="kpi-sub">枚</span></span>
+            <span class="kpi-value"><span id="stat-kpi-panels">0</span><span class="kpi-sub">枚</span></span>
         </div>
     `;
 
@@ -245,7 +239,6 @@ function renderStats() {
     const maxAC = top5.length ? top5[0].ac_output : 1;
 
     document.getElementById('barChart').innerHTML = top5.map((p, i) => {
-        const mw = (p.ac_output / 1000).toFixed(3);
         const pct = Math.round((p.ac_output / maxAC) * 100);
         const safeName = escapeHTML(p.name);
         return `
@@ -253,9 +246,9 @@ function renderStats() {
                 <div class="bar-label-line">
                     <span class="bar-rank">${i + 1}</span>
                     <span class="bar-name" title="${safeName}">${safeName}</span>
-                    <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+                    <div class="bar-track"><div class="bar-fill" style="width:0%" data-target-width="${pct}%"></div></div>
                 </div>
-                <span class="bar-val">${mw}</span>
+                <span class="bar-val" id="stat-bar-val-${i}">0</span>
             </div>`;
     }).join('');
 
@@ -264,39 +257,95 @@ function renderStats() {
     document.getElementById('compositionBar').innerHTML = `
         <div class="composition-bar">
             ${cats.map(c => {
-        const pct = ((c.count / total) * 100).toFixed(3);
-        return `<div class="comp-seg ${c.cls}" style="width:${pct}%">${pct > 12 ? pct + '%' : ''}</div>`;
+        const pct = ((c.count / total) * 100).toFixed(2);
+        return `<div class="comp-seg ${c.cls}" style="width:0%" data-target-width="${pct}%">${pct > 12 ? pct + '%' : ''}</div>`;
     }).join('')}
         </div>
         <div class="comp-legend">
             ${cats.map(c => `
                 <span class="comp-legend-item">
-                    <span class="comp-dot ${c.cls}"></span>${escapeHTML(c.key)}（${c.count}件）
+                    <span class="comp-dot ${c.cls}"></span>${escapeHTML(c.key)}（<span id="stat-cat-count-${c.cls}">0</span>件）
                 </span>
             `).join('')}
         </div>
     `;
 
     // --- テーブル ---
-    const fmtMW = v => (v / 1000).toFixed(3) + ' MW';
-
     document.getElementById('statsTableBody').innerHTML =
         cats.map(c => `
             <tr>
                 <td><span class="cat-indicator ${c.cls}"></span>${escapeHTML(c.key)}</td>
-                <td class="num">${c.count}</td>
-                <td class="num">${fmtMW(c.ac)}</td>
-                <td class="num">${fmtMW(c.dc)}</td>
+                <td class="num"><span id="stat-tab-count-${c.cls}">0</span></td>
+                <td class="num"><span id="stat-tab-ac-${c.cls}">0</span> MW</td>
+                <td class="num"><span id="stat-tab-dc-${c.cls}">0</span> MW</td>
             </tr>
         `).join('') + `
             <tr>
                 <td>合計</td>
-                <td class="num">${allPlants.length}</td>
-                <td class="num">${fmtMW(totalAC)}</td>
-                <td class="num">${fmtMW(totalDC)}</td>
+                <td class="num"><span id="stat-tab-total-count">0</span></td>
+                <td class="num"><span id="stat-tab-total-ac">0</span> MW</td>
+                <td class="num"><span id="stat-tab-total-dc">0</span> MW</td>
             </tr>
         `;
+
+    // アニメーション実行用の関数として独立
+    window.statsAnimated = false; // 二重実行防止
+    const statsTarget = document.getElementById('stats');
+    if (statsTarget) {
+        const statsObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !window.statsAnimated) {
+                    window.statsAnimated = true;
+                    startStatsAnimation(totalAC, totalDC, totalPanels, top5, cats);
+                    statsObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1 }); // 10%見えたら開始
+        statsObserver.observe(statsTarget);
+    }
 }
+
+/**
+ * 統計セクションのアニメーション開始
+ */
+function startStatsAnimation(totalAC, totalDC, totalPanels, top5, cats) {
+    // KPI
+    animateCount(document.getElementById('stat-kpi-ac'), totalAC / 1000, 1800, 2);
+    animateCount(document.getElementById('stat-kpi-dc'), totalDC / 1000, 2000, 2);
+    animateCount(document.getElementById('stat-kpi-panels'), totalPanels, 2200, 0);
+
+    // バーチャート
+    top5.forEach((p, i) => {
+        const rows = document.querySelectorAll('#barChart .bar-row');
+        if (rows[i]) {
+            const fill = rows[i].querySelector('.bar-fill');
+            fill.style.width = fill.dataset.targetWidth;
+            animateCount(document.getElementById(`stat-bar-val-${i}`), p.ac_output / 1000, 1500 + i * 200, 2);
+        }
+    });
+
+    // 構成比
+    document.querySelectorAll('.composition-bar .comp-seg').forEach(seg => {
+        seg.style.width = seg.dataset.targetWidth;
+    });
+    cats.forEach(c => {
+        const countEl = document.getElementById(`stat-cat-count-${c.cls}`);
+        const tabCountEl = document.getElementById(`stat-tab-count-${c.cls}`);
+        const tabAcEl = document.getElementById(`stat-tab-ac-${c.cls}`);
+        const tabDcEl = document.getElementById(`stat-tab-dc-${c.cls}`);
+
+        if (countEl) animateCount(countEl, c.count, 1500, 0);
+        if (tabCountEl) animateCount(tabCountEl, c.count, 1500, 0);
+        if (tabAcEl) animateCount(tabAcEl, (c.ac.ac_output || c.ac) / 1000, 1800, 2);
+        if (tabDcEl) animateCount(tabDcEl, (c.dc.dc_output || c.dc) / 1000, 2000, 2);
+    });
+
+    // テーブル合計
+    animateCount(document.getElementById('stat-tab-total-count'), allPlants.length, 1500, 0);
+    animateCount(document.getElementById('stat-tab-total-ac'), totalAC / 1000, 1800, 2);
+    animateCount(document.getElementById('stat-tab-total-dc'), totalDC / 1000, 2000, 2);
+}
+
 
 // ===========================
 // ギャラリー描画
