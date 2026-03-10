@@ -465,7 +465,7 @@ function openModal(plantId) {
     if (!plant) return;
 
     const ratio = plant.ac_output > 0
-        ? (plant.dc_output / plant.ac_output).toFixed(3)
+        ? ((plant.dc_output / plant.ac_output) * 100).toFixed(1) + '%'
         : '-';
 
     const safeImage = sanitizeURL(plant.image_url);
@@ -560,3 +560,4 @@ function setupEventListeners() {
         });
     });
 }
+
