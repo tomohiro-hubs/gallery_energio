@@ -33,14 +33,17 @@ async function loadPlants() {
         const result = await response.json();
         const rawPlants = result.data || [];
 
-        // AC出力に基づくカテゴリの自動判定
+        // AC出力に基づくカテゴリの自動判定（category指定があれば優先）
         allPlants = rawPlants.map(plant => {
             const ac = plant.ac_output || 0;
-            let category = '低圧';
-            if (ac >= 2000) {
-                category = '特別高圧';
-            } else if (ac >= 50) {
-                category = '高圧';
+            const providedCategory = (plant.category || '').trim();
+            let category = providedCategory || '低圧';
+            if (!providedCategory) {
+                if (ac >= 2000) {
+                    category = '特別高圧';
+                } else if (ac >= 50) {
+                    category = '高圧';
+                }
             }
             return { ...plant, category };
         });
@@ -151,6 +154,7 @@ function getCategoryBadgeClass(category) {
         case '特別高圧': return 'extra-high';
         case '高圧': return 'high';
         case '低圧': return 'low';
+        case '自家消費': return 'self-consumption';
         default: return 'extra-high';
     }
 }
@@ -210,7 +214,8 @@ function renderStats() {
     const cats = [
         { key: '特別高圧', cls: 'extra-high' },
         { key: '高圧', cls: 'high' },
-        { key: '低圧', cls: 'low' }
+        { key: '低圧', cls: 'low' },
+        { key: '自家消費', cls: 'self-consumption' }
     ].map(c => {
         const items = allPlants.filter(p => p.category === c.key);
         return {
@@ -432,7 +437,7 @@ function applyFilters() {
     });
 
     // ソート
-    const categoryOrder = { '特別高圧': 0, '高圧': 1, '低圧': 2 };
+    const categoryOrder = { '特別高圧': 0, '高圧': 1, '低圧': 2, '自家消費': 3 };
     filteredPlants.sort((a, b) => {
         switch (currentSort) {
             case 'name':

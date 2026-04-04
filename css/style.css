@@ -525,6 +525,11 @@ body {
     background: rgba(21, 128, 61, 0.92);
 }
 
+.card-badge.self-consumption,
+.modal-badge.self-consumption {
+    background: rgba(180, 83, 9, 0.92);
+}
+
 .card-info-overlay {
     position: absolute;
     bottom: 0;
@@ -870,6 +875,10 @@ body {
     background: #15803d;
 }
 
+.comp-seg.self-consumption {
+    background: #b45309;
+}
+
 .comp-legend {
     display: flex;
     gap: 20px;
@@ -902,6 +911,10 @@ body {
 
 .comp-dot.low {
     background: #15803d;
+}
+
+.comp-dot.self-consumption {
+    background: #b45309;
 }
 
 /* ---- テーブル ---- */
@@ -964,6 +977,10 @@ body {
 
 .cat-indicator.low {
     background: #15803d;
+}
+
+.cat-indicator.self-consumption {
+    background: #b45309;
 }
 
 /* ===========================
