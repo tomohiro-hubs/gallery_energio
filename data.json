@@ -52,13 +52,13 @@
             "id": "plant-5",
             "name": "兵庫県丹波市オフサイトPPA用太陽光発電所",
             "location": "兵庫県丹波市",
-            "ac_output": 259,
+            "ac_output": 249,
             "dc_output": 526.14,
             "panel_count": 948,
             "completion_date": "-",
             "area": 0,
             "image_url": "images/tanba2.jpg",
-            "description": "野立て型太陽光発電所（NON FIT、オフサイトPPA用途）\n太陽光パネル：555W×948枚 合計：DC526.14kW\nパワーコンディショナー：50kW×5台　合計：AC259kW"
+            "description": "野立て型太陽光発電所（NON FIT、オフサイトPPA用途）\n太陽光パネル：555W×948枚 合計：DC526.14kW\nパワーコンディショナー：50kW×5台　合計：AC249kW"
         },
         {
             "id": "plant-6",
