@@ -11,6 +11,7 @@ let currentFilter = 'all';
 let currentSearch = '';
 let currentSort = 'ac_output_desc';
 let hasStatsAnimated = false;
+const HERO_IMAGE = '/images/optimized/hero/wake1.jpg';
 
 // ===========================
 // 初期化
@@ -91,6 +92,20 @@ function sanitizeURL(url) {
         }
     } catch (e) { /* 無効なURL */ }
     return '';
+}
+
+function getOptimizedImageURL(url, variant = 'card') {
+    const safeUrl = sanitizeURL(url);
+    if (!safeUrl || safeUrl.includes('://') || safeUrl.startsWith('//')) {
+        return safeUrl;
+    }
+
+    const match = safeUrl.match(/^images\/([^/]+)\.(jpe?g)$/i);
+    if (!match) {
+        return safeUrl;
+    }
+
+    return `images/optimized/${variant}/${match[1]}.jpg`;
 }
 
 function formatNumber(num) {
@@ -201,8 +216,7 @@ function renderHeroStats() {
 // ヒーロー背景画像
 // ===========================
 function setHeroBg() {
-    const safeUrl = 'images/wake1.jpg';
-    document.querySelector('.hero-bg').style.setProperty('--hero-bg-url', `url(${safeUrl})`);
+    document.querySelector('.hero-bg').style.setProperty('--hero-bg-url', `url(${HERO_IMAGE})`);
 }
 
 // ===========================
@@ -379,12 +393,12 @@ function renderGallery() {
         const safeName = escapeHTML(plant.name);
         const safeLocation = escapeHTML(plant.location);
         const safeCategory = escapeHTML(plant.category);
-        const safeImage = sanitizeURL(plant.image_url);
+        const safeImage = getOptimizedImageURL(plant.image_url, 'card');
 
         return `
         <div class="plant-card" data-plant-id="${safeId}" style="animation-delay: ${index * 0.05}s">
             <div class="card-image-wrapper">
-                <img src="${safeImage}" alt="${safeName}" class="card-image" loading="lazy">
+                <img src="${safeImage}" alt="${safeName}" class="card-image" loading="lazy" decoding="async">
                     <div class="card-overlay"></div>
                     <span class="card-badge ${getCategoryBadgeClass(plant.category)}">${safeCategory}</span>
                     <div class="card-click-hint">
@@ -473,7 +487,7 @@ function openModal(plantId) {
         ? ((plant.dc_output / plant.ac_output) * 100).toFixed(1) + '%'
         : '-';
 
-    const safeImage = sanitizeURL(plant.image_url);
+    const safeImage = getOptimizedImageURL(plant.image_url, 'large');
     document.getElementById('modalImage').src = safeImage;
     document.getElementById('modalImage').alt = escapeHTML(plant.name);
     document.getElementById('modalTitle').textContent = plant.name;

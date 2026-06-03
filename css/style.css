@@ -36,7 +36,7 @@ html {
 }
 
 body {
-    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Yu Gothic", Meiryo, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.7;
@@ -105,7 +105,7 @@ body {
 .hero-bg {
     position: absolute;
     inset: 0;
-    background-image: url('../images/wake1.jpg');
+    background-image: var(--hero-bg-url, url('../images/optimized/hero/wake1.jpg'));
     /* 背景写真を固定 */
     background-size: cover;
     background-position: center;
